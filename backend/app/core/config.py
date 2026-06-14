@@ -10,7 +10,9 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     database_url: str = "sqlite+aiosqlite:///./research_copilot.db"
     langgraph_checkpoint_url: str | None = None
-    backend_cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
+    backend_cors_origins: list[str] = Field(
+        default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"]
+    )
     model_provider: str = "local"
     model_name: str = "local-research-model"
     openai_api_key: str | None = None
