@@ -1,55 +1,54 @@
-import { Activity, FileText, MessageSquare, Search } from "lucide-react";
-
-const sections = [
-  {
-    icon: Search,
-    title: "Create research sessions",
-    copy: "Capture company, website, and meeting objective before the workflow starts."
-  },
-  {
-    icon: Activity,
-    title: "Track workflow progress",
-    copy: "Show each research, analysis, quality, and report step as durable events."
-  },
-  {
-    icon: FileText,
-    title: "Review structured reports",
-    copy: "Render company overview, products, customers, signals, risks, outreach, unknowns, and sources."
-  },
-  {
-    icon: MessageSquare,
-    title: "Ask follow-up questions",
-    copy: "Continue from persisted report context after the briefing is generated."
-  }
-];
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { AppShell } from "../components/AppShell";
+import { EmptyState } from "../components/EmptyState";
+import { ErrorState } from "../components/ErrorState";
+import { LoadingState } from "../components/LoadingState";
+import { SessionCreateForm } from "../features/sessions/SessionCreateForm";
+import { SessionDetailPage } from "../features/sessions/SessionDetailPage";
+import { SessionHistory } from "../features/sessions/SessionHistory";
+import { listSessions } from "../lib/api";
 
 export function App() {
-  return (
-    <main className="app-shell">
-      <section className="hero">
-        <div>
-          <p className="eyebrow">Research Copilot</p>
-          <h1>Prepare sharper business meetings from one research session.</h1>
-          <p className="hero-copy">
-            A production-grade workspace for company research, workflow progress, structured
-            briefings, and grounded follow-up.
-          </p>
-        </div>
-      </section>
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const sessionsQuery = useQuery({ queryKey: ["sessions"], queryFn: listSessions });
+  const selectedSession = useMemo(() => {
+    if (!sessionsQuery.data?.length) return null;
+    if (selectedSessionId) {
+      return sessionsQuery.data.find((session) => session.id === selectedSessionId) ?? null;
+    }
+    return sessionsQuery.data[0];
+  }, [selectedSessionId, sessionsQuery.data]);
 
-      <section className="feature-grid" aria-label="Planned product surfaces">
-        {sections.map((section) => {
-          const Icon = section.icon;
-          return (
-            <article className="feature-card" key={section.title}>
-              <Icon aria-hidden="true" className="feature-icon" />
-              <h2>{section.title}</h2>
-              <p>{section.copy}</p>
-            </article>
-          );
-        })}
-      </section>
-    </main>
+  if (sessionsQuery.isLoading) {
+    return <LoadingState label="Loading workspace" />;
+  }
+
+  if (sessionsQuery.isError) {
+    return <ErrorState title="Could not load sessions" />;
+  }
+
+  return (
+    <AppShell
+      sidebar={
+        <>
+          <SessionCreateForm onCreated={setSelectedSessionId} />
+          <SessionHistory
+            sessions={sessionsQuery.data ?? []}
+            selectedSessionId={selectedSession?.id ?? null}
+            onSelect={setSelectedSessionId}
+          />
+        </>
+      }
+    >
+      {selectedSession ? (
+        <SessionDetailPage sessionId={selectedSession.id} />
+      ) : (
+        <EmptyState
+          title="Create a research session"
+          body="Add a company, website, and objective to generate a sales briefing."
+        />
+      )}
+    </AppShell>
   );
 }
-
