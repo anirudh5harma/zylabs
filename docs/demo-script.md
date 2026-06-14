@@ -20,4 +20,4 @@
 - The local provider mode produces deterministic output for review without external credentials.
 - Live providers can be enabled through `.env`.
 - The architecture supports moving workflow execution to workers without changing frontend contracts.
-
+- If running without Docker, start the backend on `127.0.0.1:8000` and the frontend on `127.0.0.1:5173`.

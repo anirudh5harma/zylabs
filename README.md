@@ -55,6 +55,7 @@ cd backend
 python -m venv .venv
 . .venv/bin/activate
 pip install -e ".[dev]"
+ruff check app tests
 pytest
 ```
 
@@ -71,3 +72,14 @@ npm run build
 
 Docker Compose is the local demo runtime. For hosted deployment, run the same backend and frontend containers against managed PostgreSQL, or deploy the frontend as static assets and the backend as a container service. Keep the database URL and checkpoint URL pointed at the same managed PostgreSQL instance unless operational needs require separate stores.
 
+## API Surface
+
+- `GET /api/v1/health`
+- `POST /api/v1/sessions`
+- `GET /api/v1/sessions`
+- `GET /api/v1/sessions/{session_id}`
+- `POST /api/v1/sessions/{session_id}/workflow/start`
+- `GET /api/v1/sessions/{session_id}/workflow/events`
+- `GET /api/v1/sessions/{session_id}/workflow/stream`
+- `GET /api/v1/sessions/{session_id}/chat`
+- `POST /api/v1/sessions/{session_id}/chat`

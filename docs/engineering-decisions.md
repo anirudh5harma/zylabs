@@ -46,6 +46,7 @@ Tradeoffs:
 - Add authentication and tenant boundaries before handling real customer data.
 - Add provider-level cost budgets, rate limits, and tracing dashboards.
 - Add richer source deduplication and credibility scoring.
+- Resolve current frontend dependency audit findings without force-upgrading into breaking changes.
 
 ## Biggest Technical Risk
 
@@ -58,3 +59,8 @@ Report quality depends on source availability and provider reliability. The work
 - Add observability dashboards for cost, latency, retry rate, and report quality.
 - Add browser-based source review and manual source pinning.
 
+## Current Implementation Notes
+
+- Database tables are created on startup for the assignment demo. A production deployment should switch to Alembic migrations before shared environments.
+- The local provider mode is deterministic by design. Live provider adapters should keep the same `ModelClient`, `SearchClient`, and `PageFetcher` contracts.
+- Workflow execution is in-process behind a runner abstraction so a queue worker can be introduced without changing frontend API contracts.

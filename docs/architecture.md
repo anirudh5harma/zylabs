@@ -46,7 +46,7 @@ The graph stores raw research state and intermediate artifacts so progress, reco
 
 ## Persistence
 
-Application tables store sessions, workflow events, workflow steps, reports, sources, and chat messages. LangGraph checkpoints store thread-scoped graph snapshots using the session ID as `thread_id`.
+Application tables store sessions, workflow events, workflow steps, reports, sources, and chat messages. LangGraph checkpoints store thread-scoped graph snapshots using the session ID as `thread_id`. Local tests use SQLite and an in-memory checkpointer; Docker Compose uses PostgreSQL for both application tables and checkpoints.
 
 ## Progress Streaming
 
@@ -56,3 +56,6 @@ The backend persists workflow events before streaming them to the browser throug
 
 Each workflow run uses a durable thread ID, bounded retries, node-level error records, quality-gated routing, and degraded report generation for unrecoverable source failures. This preserves useful output even when some external information cannot be fetched.
 
+## Local Provider Mode
+
+The default provider adapters return deterministic search results, fetched source snippets, generated reports, and follow-up answers. This keeps the demo runnable without external credentials while preserving the same adapter boundaries that live providers use.
