@@ -41,3 +41,12 @@ def test_workflow_stream_replays_persisted_events(client: TestClient) -> None:
     assert response.status_code == 200
     assert "event: workflow" in body
     assert "Report ready for persistence" in body
+
+
+def test_resume_requires_recoverable_workflow_state(client: TestClient) -> None:
+    session_id = create_research_session(client)
+
+    response = client.post(f"/api/v1/sessions/{session_id}/workflow/resume")
+
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "workflow_not_recoverable"

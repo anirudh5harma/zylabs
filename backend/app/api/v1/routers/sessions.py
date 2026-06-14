@@ -57,6 +57,17 @@ async def start_workflow(
         raise to_http_error(error) from error
 
 
+@router.post("/sessions/{session_id}/workflow/resume", response_model=WorkflowRunResponse)
+async def resume_workflow(
+    session_id: str, request: Request, db: AsyncSession = Depends(get_db)
+) -> WorkflowRunResponse:
+    try:
+        runner = WorkflowRunner(db, request.app.state.research_graph)
+        return await runner.resume(session_id)
+    except AppError as error:
+        raise to_http_error(error) from error
+
+
 @router.get("/sessions/{session_id}/workflow/events", response_model=list[WorkflowEventRead])
 async def list_workflow_events(
     session_id: str, db: AsyncSession = Depends(get_db)

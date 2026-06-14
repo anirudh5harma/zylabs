@@ -21,7 +21,29 @@ class WorkflowRunner:
         session = await self.sessions.get(session_id)
         if session.status == "running":
             raise InvalidStateError("workflow_running", "Workflow is already running.")
-        await self.events.reset_steps(session_id)
+        return await self._execute(session_id, session.id, reset_steps=True)
+
+    async def resume(self, session_id: str) -> WorkflowRunResponse:
+        session = await self.sessions.get(session_id)
+        if session.status not in {"running", "failed", "needs_attention"}:
+            raise InvalidStateError(
+                "workflow_not_recoverable", "Only running or failed workflows can be resumed."
+            )
+        await self.events.append(
+            session_id,
+            "resume",
+            "Workflow resume requested.",
+            "recovery",
+            {"status": session.status},
+        )
+        return await self._execute(session_id, session.id, reset_steps=session.status != "running")
+
+    async def _execute(
+        self, session_id: str, checkpoint_thread_id: str, reset_steps: bool
+    ) -> WorkflowRunResponse:
+        session = await self.sessions.get(session_id)
+        if reset_steps:
+            await self.events.reset_steps(session_id)
         await self.sessions.set_status(session, "running")
         input_state = {
             "session_id": session.id,
@@ -33,7 +55,7 @@ class WorkflowRunner:
             "errors": [],
             "remaining_quality_attempts": 1,
         }
-        config = {"configurable": {"thread_id": session.id}}
+        config = {"configurable": {"thread_id": checkpoint_thread_id}}
         final_state = await self.graph.ainvoke(input_state, config=config, durability="sync")
         await self._persist_progress_events(session_id, final_state.get("progress_events", []))
         final_report = final_state["final_report"]
@@ -71,4 +93,3 @@ class WorkflowRunner:
             data = WorkflowEventRead.model_validate(event).model_dump_json()
             yield f"event: workflow\ndata: {data}\n\n"
         yield f"event: done\ndata: {json.dumps({'session_id': session_id})}\n\n"
-

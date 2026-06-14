@@ -79,6 +79,7 @@ Docker Compose is the local demo runtime. For hosted deployment, run the same ba
 - `GET /api/v1/sessions`
 - `GET /api/v1/sessions/{session_id}`
 - `POST /api/v1/sessions/{session_id}/workflow/start`
+- `POST /api/v1/sessions/{session_id}/workflow/resume`
 - `GET /api/v1/sessions/{session_id}/workflow/events`
 - `GET /api/v1/sessions/{session_id}/workflow/stream`
 - `GET /api/v1/sessions/{session_id}/chat`

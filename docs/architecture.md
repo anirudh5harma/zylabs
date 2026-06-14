@@ -54,7 +54,7 @@ The backend persists workflow events before streaming them to the browser throug
 
 ## Recoverability
 
-Each workflow run uses a durable thread ID, bounded retries, node-level error records, quality-gated routing, and degraded report generation for unrecoverable source failures. This preserves useful output even when some external information cannot be fetched.
+Each workflow run uses a durable thread ID, bounded retries, node-level error records, quality-gated routing, resume API support, and degraded report generation for unrecoverable source failures. This preserves useful output even when some external information cannot be fetched.
 
 ## Local Provider Mode
 
