@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,8 +23,16 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    @field_validator("backend_cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, value: list[str] | str) -> list[str]:
+        if isinstance(value, str):
+            if value.startswith("["):
+                return value
+            return [origin.strip() for origin in value.split(",") if origin.strip()]
+        return value
+
 
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

@@ -14,6 +14,7 @@ build/
 coverage/
 *.pyc
 *.log
+*.db
 *.egg-info/
 *.tsbuildinfo
 postgres-data/
