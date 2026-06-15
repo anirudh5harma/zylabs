@@ -56,7 +56,19 @@ class WorkflowRunner:
             "remaining_quality_attempts": 1,
         }
         config = {"configurable": {"thread_id": checkpoint_thread_id}}
-        final_state = await self.graph.ainvoke(input_state, config=config, durability="sync")
+        try:
+            final_state = await self.graph.ainvoke(input_state, config=config, durability="sync")
+        except Exception as exc:
+            await self.events.append(
+                session_id,
+                "workflow",
+                "Workflow failed.",
+                "error",
+                {"error": str(exc)},
+            )
+            session = await self.sessions.get(session_id)
+            await self.sessions.set_status(session, "failed", str(exc))
+            raise
         await self._persist_progress_events(session_id, final_state.get("progress_events", []))
         final_report = final_state["final_report"]
         sources = final_report["sections"]["sources"]

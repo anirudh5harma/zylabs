@@ -6,9 +6,12 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import RetryPolicy
 
 from app.core.config import Settings
+from app.integrations.model_client import ModelClient
 from app.integrations.model_client import LocalModelClient
 from app.integrations.page_fetcher import LocalPageFetcher
+from app.integrations.page_fetcher import PageFetcher
 from app.integrations.search_client import LocalSearchClient
+from app.integrations.search_client import SearchClient
 from app.workflow.nodes.research import ResearchNodes
 from app.workflow.routing import route_quality
 from app.workflow.state import ResearchState
@@ -23,8 +26,17 @@ async def build_checkpointer(settings: Settings) -> tuple[Any | None, Any]:
     return None, InMemorySaver()
 
 
-def build_research_graph(checkpointer: Any | None = None):
-    nodes = ResearchNodes(LocalSearchClient(), LocalPageFetcher(), LocalModelClient())
+def build_research_graph(
+    checkpointer: Any | None = None,
+    model_client: ModelClient | None = None,
+    search_client: SearchClient | None = None,
+    page_fetcher: PageFetcher | None = None,
+):
+    nodes = ResearchNodes(
+        search_client or LocalSearchClient(),
+        page_fetcher or LocalPageFetcher(),
+        model_client or LocalModelClient(),
+    )
     builder = StateGraph(ResearchState)
     retry = RetryPolicy(max_attempts=2)
     builder.add_node("plan_research", nodes.plan_research, retry_policy=retry)
@@ -58,4 +70,3 @@ def build_research_graph(checkpointer: Any | None = None):
     builder.add_edge("generate_degraded_report", "persist_report")
     builder.add_edge("persist_report", END)
     return builder.compile(checkpointer=checkpointer)
-

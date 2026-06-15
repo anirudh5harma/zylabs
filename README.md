@@ -22,6 +22,8 @@ docker compose up --build
 
 The default provider mode is deterministic, so the full flow runs without external credentials. Copy `.env.example` to `.env` only when adding local overrides.
 
+To use live model responses, set `MODEL_PROVIDER=openai` and `OPENAI_API_KEY`. Startup fails with a clear config error if live mode is enabled without a key.
+
 ## Deployment
 
 Use Docker Compose for local demos and evaluation. For hosted deployment, run the same frontend and backend containers on a container platform with managed PostgreSQL. Keep `DATABASE_URL` and `LANGGRAPH_CHECKPOINT_URL` pointed at PostgreSQL unless there is a clear operational reason to split stores.

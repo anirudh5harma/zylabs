@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import InvalidStateError
-from app.integrations.model_client import LocalModelClient
+from app.integrations.model_client import LocalModelClient, ModelClient
 from app.repositories.chat_messages import ChatMessageRepository
 from app.repositories.reports import ReportRepository
 from app.repositories.sessions import SessionRepository
@@ -9,11 +9,11 @@ from app.schemas.chat import ChatMessageRead, ChatResponse
 
 
 class ChatService:
-    def __init__(self, db: AsyncSession) -> None:
+    def __init__(self, db: AsyncSession, model_client: ModelClient | None = None) -> None:
         self.sessions = SessionRepository(db)
         self.reports = ReportRepository(db)
         self.messages = ChatMessageRepository(db)
-        self.model_client = LocalModelClient()
+        self.model_client = model_client or LocalModelClient()
 
     async def list(self, session_id: str) -> list[ChatMessageRead]:
         await self.sessions.get(session_id)
@@ -49,4 +49,3 @@ class ChatService:
             user_message=ChatMessageRead.model_validate(user_message),
             response_message=ChatMessageRead.model_validate(response_message),
         )
-

@@ -18,5 +18,5 @@
 ## Evaluation Notes
 
 - Local provider mode produces deterministic output without external credentials.
-- `.env` is optional for local overrides.
+- `.env` is optional; live model mode requires `MODEL_PROVIDER=openai` and `OPENAI_API_KEY`.
 - Failed or attention-needed workflows can be resumed from the detail action.

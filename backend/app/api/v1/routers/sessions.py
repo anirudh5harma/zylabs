@@ -101,9 +101,12 @@ async def list_chat(session_id: str, db: AsyncSession = Depends(get_db)) -> list
 
 @router.post("/sessions/{session_id}/chat", response_model=ChatResponse)
 async def ask_chat(
-    session_id: str, payload: ChatRequest, db: AsyncSession = Depends(get_db)
+    session_id: str,
+    payload: ChatRequest,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
 ) -> ChatResponse:
     try:
-        return await ChatService(db).ask(session_id, payload.message)
+        return await ChatService(db, request.app.state.model_client).ask(session_id, payload.message)
     except AppError as error:
         raise to_http_error(error) from error

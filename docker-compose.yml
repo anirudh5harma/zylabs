@@ -26,7 +26,7 @@ services:
       LANGGRAPH_CHECKPOINT_URL: ${LANGGRAPH_CHECKPOINT_URL:-postgresql://research:research@postgres:5432/research_copilot?sslmode=disable}
       BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
       MODEL_PROVIDER: ${MODEL_PROVIDER:-local}
-      MODEL_NAME: ${MODEL_NAME:-local-research-model}
+      MODEL_NAME: ${MODEL_NAME:-gpt-4.1-mini}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       SEARCH_PROVIDER: ${SEARCH_PROVIDER:-local}
     ports:

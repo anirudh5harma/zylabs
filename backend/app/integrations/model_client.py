@@ -6,6 +6,10 @@ class ModelClient:
         raise NotImplementedError
 
 
+class ModelProviderError(RuntimeError):
+    pass
+
+
 class LocalModelClient(ModelClient):
     async def generate_report(self, state: dict, degraded: bool = False) -> dict:
         company = state["company_name"]
@@ -36,4 +40,3 @@ class LocalModelClient(ModelClient):
             f"Based on the saved briefing, {overview} For your question: {question} "
             "The strongest next step is to validate the highest-impact unknowns during discovery."
         )
-

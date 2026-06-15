@@ -8,6 +8,7 @@ from app.api.v1.routers.sessions import router as sessions_router
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
 from app.db.session import build_session_factory, dispose_engine, init_db
+from app.integrations.providers import build_model_client, build_page_fetcher, build_search_client
 from app.workflow.graph import build_checkpointer, build_research_graph
 
 
@@ -16,13 +17,22 @@ def build_lifespan(settings: Settings):
     async def lifespan(app: FastAPI):
         configure_logging(settings)
         app.state.settings = settings
+        model_client = build_model_client(settings)
+        search_client = build_search_client(settings)
+        page_fetcher = build_page_fetcher()
         engine, session_factory = build_session_factory(settings.database_url)
         app.state.db_engine = engine
         app.state.db_session_factory = session_factory
         await init_db(engine)
         checkpointer_context, checkpointer = await build_checkpointer(settings)
         app.state.checkpointer_context = checkpointer_context
-        app.state.research_graph = build_research_graph(checkpointer)
+        app.state.model_client = model_client
+        app.state.research_graph = build_research_graph(
+            checkpointer=checkpointer,
+            model_client=model_client,
+            search_client=search_client,
+            page_fetcher=page_fetcher,
+        )
         try:
             yield
         finally:

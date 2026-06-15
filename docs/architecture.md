@@ -56,4 +56,4 @@ Recovery uses durable thread IDs, bounded retries, quality-gated routing, a resu
 
 ## Local Provider Mode
 
-Default adapters return deterministic search results, source snippets, reports, and chat answers. Live providers can use the same adapter interfaces.
+Default adapters return deterministic search results, source snippets, reports, and chat answers. Setting `MODEL_PROVIDER=openai` routes report and chat generation through the live model adapter and requires `OPENAI_API_KEY` at startup.

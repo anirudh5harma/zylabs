@@ -14,7 +14,7 @@ class Settings(BaseSettings):
         default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"]
     )
     model_provider: str = "local"
-    model_name: str = "local-research-model"
+    model_name: str = "gpt-4.1-mini"
     openai_api_key: str | None = None
     search_provider: str = "local"
 
