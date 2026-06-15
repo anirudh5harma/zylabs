@@ -13,7 +13,6 @@ Research Copilot creates sales meeting briefings from a company, website, and ob
 ## Quick Start
 
 ```bash
-cp .env.example .env
 docker compose up --build
 ```
 
@@ -21,7 +20,7 @@ docker compose up --build
 - Backend docs: `http://localhost:8000/docs`
 - Health check: `http://localhost:8000/api/v1/health`
 
-The default provider mode is deterministic, so the full flow runs without external credentials.
+The default provider mode is deterministic, so the full flow runs without external credentials. Copy `.env.example` to `.env` only when adding local overrides.
 
 ## Deployment
 

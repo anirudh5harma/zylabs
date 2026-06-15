@@ -18,11 +18,17 @@ services:
   backend:
     build:
       context: ./backend
-    env_file:
-      - .env.example
     environment:
-      DATABASE_URL: postgresql+asyncpg://research:research@postgres:5432/research_copilot
-      LANGGRAPH_CHECKPOINT_URL: postgresql://research:research@postgres:5432/research_copilot?sslmode=disable
+      APP_ENV: ${APP_ENV:-local}
+      APP_NAME: ${APP_NAME:-research-copilot}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://research:research@postgres:5432/research_copilot}
+      LANGGRAPH_CHECKPOINT_URL: ${LANGGRAPH_CHECKPOINT_URL:-postgresql://research:research@postgres:5432/research_copilot?sslmode=disable}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      MODEL_PROVIDER: ${MODEL_PROVIDER:-local}
+      MODEL_NAME: ${MODEL_NAME:-local-research-model}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      SEARCH_PROVIDER: ${SEARCH_PROVIDER:-local}
     ports:
       - "8000:8000"
     depends_on:
@@ -33,7 +39,7 @@ services:
     build:
       context: ./frontend
     environment:
-      VITE_API_BASE_URL: http://localhost:8000/api/v1
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000/api/v1}
     ports:
       - "5173:5173"
     depends_on:
@@ -41,4 +47,3 @@ services:
 
 volumes:
   postgres-data:
-

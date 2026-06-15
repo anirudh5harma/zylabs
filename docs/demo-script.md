@@ -18,5 +18,5 @@
 ## Evaluation Notes
 
 - Local provider mode produces deterministic output without external credentials.
-- `.env` controls live provider configuration.
+- `.env` is optional for local overrides.
 - Failed or attention-needed workflows can be resumed from the detail action.
