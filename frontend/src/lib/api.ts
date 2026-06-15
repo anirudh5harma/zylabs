@@ -41,6 +41,12 @@ export function startWorkflow(sessionId: string) {
   });
 }
 
+export function resumeWorkflow(sessionId: string) {
+  return request<{ session_id: string; status: string }>(`/sessions/${sessionId}/workflow/resume`, {
+    method: "POST"
+  });
+}
+
 export function askFollowUp(sessionId: string, message: string) {
   return request<ChatResponse>(`/sessions/${sessionId}/chat`, {
     method: "POST",
@@ -51,4 +57,3 @@ export function askFollowUp(sessionId: string, message: string) {
 export function workflowStreamUrl(sessionId: string) {
   return `${API_BASE_URL}/sessions/${sessionId}/workflow/stream`;
 }
-

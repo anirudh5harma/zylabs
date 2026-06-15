@@ -2,7 +2,7 @@
 
 ## System Overview
 
-Research Copilot is split into a React frontend, a FastAPI backend, a LangGraph workflow runtime, and PostgreSQL persistence.
+Research Copilot has four runtime parts: React, FastAPI, LangGraph, and PostgreSQL.
 
 ```mermaid
 flowchart TB
@@ -17,11 +17,11 @@ flowchart TB
 
 ## Backend Boundaries
 
-- API routers validate request/response contracts and delegate to services.
-- Services coordinate domain behavior, workflow execution, and persistence.
-- Repositories own database access and transactions.
-- Integrations wrap external model, search, and page-fetching providers.
-- Workflow modules own graph state, nodes, routing, and prompts.
+- Routers own request and response contracts.
+- Services coordinate sessions, workflow runs, reports, and chat.
+- Repositories own database access.
+- Integrations hide model, search, and page-fetch providers.
+- Workflow modules own graph state, nodes, routing, and report generation.
 
 ## LangGraph Workflow
 
@@ -42,20 +42,18 @@ flowchart TB
   Persist --> End([END])
 ```
 
-The graph stores raw research state and intermediate artifacts so progress, recovery, and report quality can be inspected.
+The graph uses shared state, retries, conditional routing, intermediate outputs, and checkpointed thread IDs.
 
 ## Persistence
 
-Application tables store sessions, workflow events, workflow steps, reports, sources, and chat messages. LangGraph checkpoints store thread-scoped graph snapshots using the session ID as `thread_id`. Local tests use SQLite and an in-memory checkpointer; Docker Compose uses PostgreSQL for both application tables and checkpoints.
+Application tables store sessions, workflow steps, events, reports, sources, and chat messages. LangGraph checkpoints use the session ID as `thread_id`. Tests use SQLite and an in-memory checkpointer; Docker Compose uses PostgreSQL for both application data and checkpoints.
 
-## Progress Streaming
+## Progress And Recovery
 
-The backend persists workflow events before streaming them to the browser through Server-Sent Events. A reconnecting browser can replay historical events and then continue with live updates.
+Workflow events are persisted before they are shown in the browser. The stream endpoint replays existing events, so refreshes and reconnects keep context.
 
-## Recoverability
-
-Each workflow run uses a durable thread ID, bounded retries, node-level error records, quality-gated routing, resume API support, and degraded report generation for unrecoverable source failures. This preserves useful output even when some external information cannot be fetched.
+Recovery uses durable thread IDs, bounded retries, quality-gated routing, a resume endpoint, and degraded reports when source coverage is insufficient.
 
 ## Local Provider Mode
 
-The default provider adapters return deterministic search results, fetched source snippets, generated reports, and follow-up answers. This keeps the demo runnable without external credentials while preserving the same adapter boundaries that live providers use.
+Default adapters return deterministic search results, source snippets, reports, and chat answers. Live providers can use the same adapter interfaces.

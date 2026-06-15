@@ -3,7 +3,7 @@ import { Play } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ErrorState } from "../../components/ErrorState";
 import { LoadingState } from "../../components/LoadingState";
-import { getSession, startWorkflow, workflowStreamUrl } from "../../lib/api";
+import { getSession, resumeWorkflow, startWorkflow, workflowStreamUrl } from "../../lib/api";
 import { useEventStream } from "../../hooks/useEventStream";
 import { FollowUpChat } from "../chat/FollowUpChat";
 import { ReportView } from "../reports/ReportView";
@@ -24,7 +24,12 @@ export function SessionDetailPage({ sessionId }: SessionDetailPageProps) {
     void queryClient.invalidateQueries({ queryKey: ["sessions"] });
   }, [queryClient, sessionId]);
   const workflowMutation = useMutation({
-    mutationFn: () => startWorkflow(sessionId),
+    mutationFn: () => {
+      const status = detailQuery.data?.status;
+      return status === "failed" || status === "needs_attention"
+        ? resumeWorkflow(sessionId)
+        : startWorkflow(sessionId);
+    },
     onSuccess: refreshSession
   });
 
@@ -40,7 +45,17 @@ export function SessionDetailPage({ sessionId }: SessionDetailPageProps) {
   }
 
   const session = detailQuery.data;
-  const canRun = session.status === "created" || session.status === "failed" || session.status === "completed";
+  const canRun =
+    session.status === "created" ||
+    session.status === "failed" ||
+    session.status === "needs_attention" ||
+    session.status === "completed";
+  const actionLabel =
+    session.status === "failed" || session.status === "needs_attention"
+      ? "Resume workflow"
+      : session.report
+        ? "Rerun workflow"
+        : "Run workflow";
 
   return (
     <div className="detail-layout">
@@ -60,7 +75,7 @@ export function SessionDetailPage({ sessionId }: SessionDetailPageProps) {
           type="button"
         >
           <Play aria-hidden="true" size={18} />
-          {workflowMutation.isPending ? "Running" : session.report ? "Rerun workflow" : "Run workflow"}
+          {workflowMutation.isPending ? "Running" : actionLabel}
         </button>
       </section>
 

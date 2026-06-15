@@ -2,51 +2,45 @@
 
 ## Decision 1: LangGraph as the Workflow Runtime
 
-The research process is implemented as a LangGraph `StateGraph` with meaningful nodes, shared state, conditional routing, progress events, and checkpoints.
+The workflow uses a LangGraph `StateGraph` with meaningful nodes, shared state, conditional routing, progress events, retries, and checkpoints.
 
-Alternatives considered:
+Alternatives:
 
 - A single backend endpoint that calls a model once.
 - A hand-rolled Python pipeline without graph state or checkpoints.
 
-Tradeoffs:
-
-- LangGraph adds setup complexity, but it gives durable execution, progress streaming, recovery points, and inspectable intermediate outputs.
+Tradeoff: LangGraph adds setup complexity, but it gives durable execution, recovery points, progress visibility, and inspectable intermediate outputs.
 
 ## Decision 2: PostgreSQL for Application Data and Checkpoints
 
-PostgreSQL stores both product data and LangGraph checkpoints for the local demo and hosted deployment path.
+PostgreSQL stores product data and LangGraph checkpoints in local and hosted environments.
 
-Alternatives considered:
+Alternatives:
 
 - SQLite-only local persistence.
 - In-memory workflow state.
 - Separate stores for app data and checkpoint data.
 
-Tradeoffs:
-
-- PostgreSQL requires Docker or managed infrastructure, but it mirrors production behavior and keeps persistence durable across restarts.
+Tradeoff: PostgreSQL requires Docker or managed infrastructure, but it mirrors production behavior and survives restarts.
 
 ## Decision 3: Provider Adapters Around Model, Search, and Fetching
 
 Workflow nodes call adapter interfaces instead of concrete providers.
 
-Alternatives considered:
+Alternatives:
 
 - Calling provider SDKs directly inside nodes.
 - Hardcoding only deterministic local data.
 
-Tradeoffs:
-
-- Adapters add indirection, but they keep tests deterministic and let live providers be swapped without changing graph logic.
+Tradeoff: Adapters add indirection, but they keep tests deterministic and allow provider swaps without graph changes.
 
 ## Top Technical Debt Items
 
-- Move workflow execution from in-process background tasks to a dedicated worker once concurrency requirements are known.
-- Add authentication and tenant boundaries before handling real customer data.
-- Add provider-level cost budgets, rate limits, and tracing dashboards.
-- Add richer source deduplication and credibility scoring.
-- Resolve current frontend dependency audit findings without force-upgrading into breaking changes.
+- Move workflow execution from the API process to workers.
+- Add authentication and tenant boundaries.
+- Add cost budgets, rate limits, tracing, and quality dashboards.
+- Improve source deduplication and credibility scoring.
+- Resolve current frontend dependency audit findings without breaking upgrades.
 
 ## Biggest Technical Risk
 
@@ -57,10 +51,4 @@ Report quality depends on source availability and provider reliability. The work
 - Add queue-backed workflow execution and worker autoscaling.
 - Add authenticated workspaces and row-level tenant boundaries.
 - Add observability dashboards for cost, latency, retry rate, and report quality.
-- Add browser-based source review and manual source pinning.
-
-## Current Implementation Notes
-
-- Database tables are created on startup for the assignment demo. A production deployment should switch to Alembic migrations before shared environments.
-- The local provider mode is deterministic by design. Live provider adapters should keep the same `ModelClient`, `SearchClient`, and `PageFetcher` contracts.
-- Workflow execution is in-process behind a runner abstraction so a queue worker can be introduced without changing frontend API contracts.
+- Add source review, manual source pinning, and Alembic migrations.
