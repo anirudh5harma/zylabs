@@ -2,6 +2,8 @@
 
 Research Copilot creates sales meeting briefings from a company, website, and objective. It runs a LangGraph workflow, saves the session, report, sources, workflow events, and chat history, then supports follow-up questions once the report is ready.
 
+<img width="1445" height="742" alt="Screenshot 2026-06-16 at 5 33 45 PM" src="https://github.com/user-attachments/assets/d7fa2f5c-d67b-4378-a7e6-e1de78fbe064" />
+
 ## Stack
 
 - Frontend: React, TypeScript, Vite
