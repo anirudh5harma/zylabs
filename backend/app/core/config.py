@@ -1,3 +1,4 @@
+import json
 from functools import lru_cache
 
 from pydantic import Field, field_validator
@@ -22,6 +23,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         env_nested_delimiter="__",
+        enable_decoding=False,
         extra="ignore",
     )
 
@@ -30,7 +32,7 @@ class Settings(BaseSettings):
     def parse_cors_origins(cls, value: list[str] | str) -> list[str]:
         if isinstance(value, str):
             if value.startswith("["):
-                return value
+                return json.loads(value)
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
 
